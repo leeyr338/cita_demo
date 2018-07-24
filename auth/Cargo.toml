@@ -1,0 +1,9 @@
+[package]
+name = "auth"
+version = "0.1.0"
+authors = ["leeyr <leeyr@cryptape.com>"]
+
+[dependencies]
+protobuf = { version = "^1.0.0"}
+grpc = "0.3.0"
+tls-api = "0.1.14"

@@ -1,0 +1,16 @@
+
+syntax = "proto3";
+
+package auth;
+
+service authority {
+  rpc auth (Transation) returns (State) {}
+}
+
+message Transation {
+  string tx = 1;
+}
+
+message State {
+  string state = 1;
+}
