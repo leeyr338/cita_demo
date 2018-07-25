@@ -6,3 +6,8 @@ authors = ["leeyr <leeyr@cryptape.com>"]
 [dependencies]
 hyper = "0.12"
 pretty_env_logger = "0.2.0"
+auth = "0.1.0"
+protobuf = { version = "^1.0.0"}
+grpc = "0.3.0"
+tls-api = "0.1.14"
+futures = "0.1.21"

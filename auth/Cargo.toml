@@ -9,3 +9,4 @@ license = "Apache-2.0"
 protobuf = { version = "^1.0.0"}
 grpc = "0.3.0"
 tls-api = "0.1.14"
+rand = "0.3.17"
