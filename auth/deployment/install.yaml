@@ -1,0 +1,69 @@
+---
+# Source: auth/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: RELEASE-NAME-auth
+  labels:
+    app: auth
+    chart: auth-0.1.0
+    release: RELEASE-NAME
+    heritage: Tiller
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6666
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: auth
+    release: RELEASE-NAME
+
+---
+# Source: auth/templates/deployment.yaml
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: RELEASE-NAME-auth
+  labels:
+    app: auth
+    chart: auth-0.1.0
+    release: RELEASE-NAME
+    heritage: Tiller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+      release: RELEASE-NAME
+  template:
+    metadata:
+      labels:
+        app: auth
+        release: RELEASE-NAME
+    spec:
+      containers:
+        - name: auth
+          image: "auth:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: grpc
+              containerPort: 30303
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {}
+            
+
+---
+# Source: auth/templates/ingress.yaml
+
+
