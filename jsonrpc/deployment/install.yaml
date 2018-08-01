@@ -1,0 +1,69 @@
+---
+# Source: jsonrpc/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: RELEASE-NAME-jsonrpc
+  labels:
+    app: jsonrpc
+    chart: jsonrpc-0.1.0
+    release: RELEASE-NAME
+    heritage: Tiller
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: jsonrpc
+    release: RELEASE-NAME
+
+---
+# Source: jsonrpc/templates/deployment.yaml
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: RELEASE-NAME-jsonrpc
+  labels:
+    app: jsonrpc
+    chart: jsonrpc-0.1.0
+    release: RELEASE-NAME
+    heritage: Tiller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jsonrpc
+      release: RELEASE-NAME
+  template:
+    metadata:
+      labels:
+        app: jsonrpc
+        release: RELEASE-NAME
+    spec:
+      containers:
+        - name: jsonrpc
+          image: "leeyr/jsonrpc:latest"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {}
+            
+
+---
+# Source: jsonrpc/templates/ingress.yaml
+
+

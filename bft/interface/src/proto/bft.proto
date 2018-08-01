@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+import "chain.proto";
+
+message Proposal {
+  Block block = 1;
+  bool islock = 2;
+  uint64 lock_round = 3;
+  repeated Vote lock_votes = 4;
+  uint64 round = 5;
+  uint64 height = 6;
+}
+
+message Vote {
+  bytes sender = 1;
+  bytes proposal = 2;
+  bytes signature = 3;
+}
+
+message SignedProposal {
+  Proposal proposal = 1;
+  bytes signature = 2;
+}
+
+service Bft {
+
+  // 功能 ：设置提议块
+  // 调用者 ： network，当接收到其它节点的提议时，调用该接口，通知Bft设置所提议的块。
+  // 输入 ：提议块的信息
+  // 返回值 ：只要收到信息就返回OK
+  rpc SetBlockProposal (ProposalBlock) returns (ReceivedStatus) {}
+
+  // 功能 ：设置投票信息。
+  // 调用者 ： network，当接收到其它节点的提投票时，调用该接口，通知Bft设置投票信息
+  // 输入 ：投票信息
+  // 返回值 : 只要收到信息就返回OK
+  rpc SetBlockVoting (VoteInfo) returns (ReceivedStatus) {}
+}

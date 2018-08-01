@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+enum Crypto {
+  SECP = 0;
+  SM2 = 1;
+}
+
+message Transaction {
+  string to = 1;
+  string nonce = 2;
+  uint64 quota = 3;
+  uint64 valid_until_block = 4;
+  bytes data = 5;
+  uint64 value = 6;
+  uint32 chain_id = 7;
+  uint32 version = 8;
+}
+
+message UnverifiedTransaction {
+  Transaction transaction = 1;
+  bytes signature = 2;
+  Crypto crypto = 3;
+}
+
+message SignedTransaction {
+  UnverifiedTransaction transaction_with_sig = 1;
+  bytes tx_hash = 2;  // SignedTransaction hash
+  bytes signer = 3; //public key
+}
+
+message Transaction {
+  UnverifiedTransaction untx = 1;
+}
+
+message TransactionHash {
+  bytes tx_hash = 1;
+}
+
+message BlockHeight {
+  uint64 height = 1;
+}
+
+message BlockHashes {
+  repeated bytes tx_hashes = 1;
+}
+
+message VerifiedTransactions {
+  repeated Transaction untx = 1;
+}
+
+service Auth {
+
+  // 功能 ：验证一条交易，加入交易池
+  // 调用者 ： jsonrpc，当接收用户的交易信息时，调用该接口，验证交易。
+  //          network, 接收到其它节点广播的交易信息时，调用该接口，验证交易。
+  // 输入 ：提议块的信息
+  // 返回值 ：只要收到信息就返回OK
+  rpc AuthTransaction (TxInfo) returns (TxHash) {}
+
+
+  // 功能 ：从交易池里，打一个新的块，将上一个块高的所有交易从交易池中移除（实际上是更改tag？）
+  // 调用者 ： bft，当上一个块的已经正确写入数据库，并且当前轮为本节点出块时，调用该接口。
+  // 输入 ：下一块高度
+  // 返回值 ：所打包块的所有交易Hash值
+  rpc PackNewBlock (BlockHeigth) returns (TxsHash) {}
+
+  // 功能 ：将一个已经签名的交易写入交易数据库
+  // 调用者 ： sync，同步模块收到其它节点同步的交易数据后，调用该接口写入交易数据库
+  // 输入 ：签名后的交易信息
+  // 返回值 ：数据库写入状态
+  rpc WriteSignedTx (SignedTx) returns (WriteStatu) {}
+}

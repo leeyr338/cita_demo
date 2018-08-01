@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package network;
+
+
+enum RpcStatus {
+  RECEIVED_OK = 0;
+}
+
+enum Crypto {
+  SECP = 0;
+  SM2 = 1;
+}
+
+message Transaction {
+  string to = 1;
+  string nonce = 2;
+  uint64 quota = 3;
+  uint64 valid_until_block = 4;
+  bytes data = 5;
+  uint64 value = 6;
+  uint32 chain_id = 7;
+  uint32 version = 8;
+}
+
+message UnverifiedTransaction {
+  Transaction transaction = 1;
+  bytes signature = 2;
+  Crypto crypto = 3;
+}
+
+message SignedTransaction {
+  UnverifiedTransaction transaction_with_sig = 1;
+  bytes tx_hash = 2;  // SignedTransaction hash
+  bytes signer = 3; //public key
+}
+
+message ReceivedStatus {
+  RpcStatus status = 1;
+}
+
+service network {
+
+  // description : broadcast a transaction
+  // caller : auth, while recieved a new transaction, calls this function
+  // input : SignedTransaction,
+  // output : ReceivedStatus, returns RECEIVED_OK just after received the transaction
+  rpc BroadcastTx (SignedTransaction) returns (ReceivedStatus) {}
+
+  // description : broadcast a proposal
+  // caller : bft
+  // input : ProposalBlock
+  // output : ReceivedStatus, returns RECEIVED_OK just after received the proposal
+  rpc BroadcastProposal (ProposalBlock) returns (ReceivedStatus) {}
+
+  // description : broadcast a Vote
+  // caller : bft
+  // input : VoteInfo
+  // output : ReceivedStatus, returns RECEIVED_OK just after received the Vote
+  rpc BroadcastVote (VoteInfo) returns (ReceivedStatus) {}
+
+  // 功能 ：广播块高度信息
+  // 调用者 ： bft, 当出块完成后，调用该接口，广播本节点的高度
+  // 输入 ：本节点高度信息
+  // 返回值 : 处理完成后返回OK
+  rpc BroadcastHeigth (HeigthInfo) returns (ReceivedStatus) {}
+
+  // 功能 ：获取远程的Block信息
+  // 调用者 ： sync, 当需要同步时，调用该接口，从远程拉取Block信息
+  // 输入 ：一组Block的高度
+  // 返回值 : 对应高度的信息，其中包括Block Header、receipt、world state。
+  rpc GetRemoteBlocks (BlockHeigths) returns (Blocks) {}
+
+  // 功能 ：获取远程交易信息。
+  // 调用者 ： sync, 当需要同步时，调用该接口，从远程拉取交易信息
+  // 输入 ：交易Hash值
+  // 返回值 : 交易Hash对应的交易信息
+  rpc GetRemoteTxs (TxsHash) returns (Txs) {}
+}

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package sync;
+
+
+service sync {
+
+  // 功能 ：更改本节点的块高度，如果存在高度差（可能是2块以上），启动同步流程
+  // 调用者 ：network, 当接收到其它节点广播的块高度时，调用该接口
+  // 输入 ：高度信息
+  // 返回值 : 收到信息后，便可以返回OK.
+  rpc UpdateBlockHeigth (BlockHeigth) returns (ReceivedStatus) {}
+}

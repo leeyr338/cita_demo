@@ -21,23 +21,23 @@
 
 // interface
 
-pub trait authority {
-    fn auth(&self, o: ::grpc::RequestOptions, p: super::auth::Transation) -> ::grpc::SingleResponse<super::auth::State>;
+pub trait network {
+    fn broadcast_tx(&self, o: ::grpc::RequestOptions, p: super::network::SignedTransaction) -> ::grpc::SingleResponse<super::network::ReceivedStatus>;
 }
 
 // client
 
-pub struct authorityClient {
+pub struct networkClient {
     grpc_client: ::grpc::Client,
-    method_auth: ::std::sync::Arc<::grpc::rt::MethodDescriptor<super::auth::Transation, super::auth::State>>,
+    method_BroadcastTx: ::std::sync::Arc<::grpc::rt::MethodDescriptor<super::network::SignedTransaction, super::network::ReceivedStatus>>,
 }
 
-impl authorityClient {
+impl networkClient {
     pub fn with_client(grpc_client: ::grpc::Client) -> Self {
-        authorityClient {
+        networkClient {
             grpc_client: grpc_client,
-            method_auth: ::std::sync::Arc::new(::grpc::rt::MethodDescriptor {
-                name: "/auth.authority/auth".to_string(),
+            method_BroadcastTx: ::std::sync::Arc::new(::grpc::rt::MethodDescriptor {
+                name: "/network.network/BroadcastTx".to_string(),
                 streaming: ::grpc::rt::GrpcStreaming::Unary,
                 req_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
                 resp_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
@@ -47,42 +47,42 @@ impl authorityClient {
 
     pub fn new_plain(host: &str, port: u16, conf: ::grpc::ClientConf) -> ::grpc::Result<Self> {
         ::grpc::Client::new_plain(host, port, conf).map(|c| {
-            authorityClient::with_client(c)
+            networkClient::with_client(c)
         })
     }
     pub fn new_tls<C : ::tls_api::TlsConnector>(host: &str, port: u16, conf: ::grpc::ClientConf) -> ::grpc::Result<Self> {
         ::grpc::Client::new_tls::<C>(host, port, conf).map(|c| {
-            authorityClient::with_client(c)
+            networkClient::with_client(c)
         })
     }
 }
 
-impl authority for authorityClient {
-    fn auth(&self, o: ::grpc::RequestOptions, p: super::auth::Transation) -> ::grpc::SingleResponse<super::auth::State> {
-        self.grpc_client.call_unary(o, p, self.method_auth.clone())
+impl network for networkClient {
+    fn broadcast_tx(&self, o: ::grpc::RequestOptions, p: super::network::SignedTransaction) -> ::grpc::SingleResponse<super::network::ReceivedStatus> {
+        self.grpc_client.call_unary(o, p, self.method_BroadcastTx.clone())
     }
 }
 
 // server
 
-pub struct authorityServer;
+pub struct networkServer;
 
 
-impl authorityServer {
-    pub fn new_service_def<H : authority + 'static + Sync + Send + 'static>(handler: H) -> ::grpc::rt::ServerServiceDefinition {
+impl networkServer {
+    pub fn new_service_def<H : network + 'static + Sync + Send + 'static>(handler: H) -> ::grpc::rt::ServerServiceDefinition {
         let handler_arc = ::std::sync::Arc::new(handler);
-        ::grpc::rt::ServerServiceDefinition::new("/auth.authority",
+        ::grpc::rt::ServerServiceDefinition::new("/network.network",
             vec![
                 ::grpc::rt::ServerMethod::new(
                     ::std::sync::Arc::new(::grpc::rt::MethodDescriptor {
-                        name: "/auth.authority/auth".to_string(),
+                        name: "/network.network/BroadcastTx".to_string(),
                         streaming: ::grpc::rt::GrpcStreaming::Unary,
                         req_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
                         resp_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
                     }),
                     {
                         let handler_copy = handler_arc.clone();
-                        ::grpc::rt::MethodHandlerUnary::new(move |o, p| handler_copy.auth(o, p))
+                        ::grpc::rt::MethodHandlerUnary::new(move |o, p| handler_copy.broadcast_tx(o, p))
                     },
                 ),
             ],

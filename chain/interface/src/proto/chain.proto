@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+enum ProofType {
+  AuthorityRound = 0;
+  Raft = 1;
+  Tendermint = 2;
+}
+
+message Proof {
+  bytes content = 1;
+  ProofType type = 2;
+}
+
+message BlockHeader {
+  bytes prevhash = 1;
+  uint64 timestamp = 2;
+  uint64 height = 3;
+  bytes state_root = 4;
+  bytes transactions_root = 5;
+  bytes receipts_root = 6;
+  uint64 gas_used = 7;
+  uint64 gas_limit = 8;
+  Proof proof = 9;
+  bytes proposer = 10;
+}
+
+message Status {
+  bytes hash = 1;
+  uint64 height = 2;
+}
+
+message AccountGasLimit {
+  uint64 common_gas_limit = 1;
+  map<string,uint64> specific_gas_limit = 2;
+}
+
+message RichStatus {
+  bytes hash = 1;
+  uint64 height = 2;
+  repeated bytes nodes = 3;
+  uint64 interval = 4;
+}
+
+// data precompile API
+message BlockBody {
+  repeated bytes tx_hashes = 1;
+}
+
+message Block {
+  uint32 version = 1;
+  BlockHeader header = 2;
+  BlockBody body = 3;
+}
+
+message BlockWithProof {
+  Block blk = 1;
+  Proof proof = 2;
+}
+
+message NewBlockReq {
+  Block block = 1;
+  Proof proof = 2;
+}
+
+message BlockHeight {
+  uint64 height = 1;
+}
+
+message LatestHeightReq {
+}
+
+message LatestHeightRes {
+  uint64 height = 1;
+}
+
+service Chain {
+
+  // 功能：新建一个影子block；block预执行，执行结果不写入链
+  // 调用者：bft, 共识模块计划出一个块或者收到一个proposal块时，调用NewShadowBlock，可以通知Chain提前执行并处理这个块；
+  rpc NewShadowBlock (NewBlockReq) returns (BlockHeight) {}
+
+  // 功能：共识模块共识完成一个块后，调用NewBlock，将一个块写入chain中。如果当前块已经有shadow,
+  //      则将shadow的结果直接写入链。否则先执行block。
+  // 调用者: bft，完成共识后调用
+  rpc NewBlock (BlockHeight) returns (WriteRes) {}
+
+  // 功能：根据block高度的数组，获得Block信息，包括世界状态、receipt、block Header。
+  // 调用者：network, 在同步场景下，network接收到同步节点的请求时，向本地chain模块获取块信息
+  rpc GetBlocks(BlockHeights) returns (BlocksInfo) {}
+
+  // 功能：根据transaction hash，获得transaction信息。
+  // 调用者：network, 在同步场景下，network接收到同步节点的请求时，向本地chain模块获取块信息
+  rpc GetBlockTransactions(TxsHash) returns(TxsInfo) {}
+
+  rpc LatestHeight (LatestHeightReq) returns (LatestHeightRes) {}
+}

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package vm;
+
+
+service Vm {
+
+  // 功能 ：执行一条交易
+  // 调用者 ： chain, 执行一个Block时;
+  // 输入 ：一组Block的高度
+  // 返回值 : 对应高度的信息，其中包括Block Header、receipt、world state。
+  rpc ExecTx (TxHash) returns (ExecutionResult) {}
+
+  // 功能 ：执行合约中一个call方法
+  // 调用者 ： jsonrpc，接收到用户的一个call命令时
+  // 输入 ：Call需要的信息，没有想好(TODO)
+  // 返回值 : 返回Call返回信息
+  rpc ExecCall (CallInfo) returns (CallResult) {}
+}

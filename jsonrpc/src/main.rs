@@ -18,16 +18,18 @@ use auth::interface::auth_grpc::authority;
 use auth::interface::auth_grpc::*;
 
 fn main() {
-    println!("Running jsonrpc service...", );
+    println!("###Running jsonrpc service...", );
     pretty_env_logger::init();
 
-    let addr = ([127, 0, 0, 1], 3000).into();
+    let addr = ([0,0,0,0], 3000).into();
 
     let counter = Arc::new(AtomicUsize::new(0));
 
     let new_service = move || {
-        let client = authorityClient::new_plain("http://auth", 6666, Default::default()).unwrap();
+        println!("conect clinet start...");
+        let client = authorityClient::new_plain("auth", 6666, Default::default()).unwrap();
         let counter = counter.clone();
+        println!("conect clinet end");
 
         service_fn_ok(move |req| {
             let count = counter.fetch_add(1, Ordering::AcqRel);
