@@ -2,10 +2,13 @@
 #![deny(warnings)]
 extern crate hyper;
 extern crate pretty_env_logger;
-extern crate auth;
+extern crate auth_interface;
 extern crate protobuf;
 extern crate grpc;
 // extern crate futures;
+
+#[macro_use]
+extern crate jsonrpc_derive;
 
 use std::sync::{Arc, atomic::{AtomicUsize, Ordering}};
 
@@ -13,23 +16,31 @@ use hyper::{Body, Response, Server, Method, StatusCode};
 use hyper::service::service_fn_ok;
 use hyper::rt::{self, Future};
 
-// // use futures::future;
-use auth::interface::auth_grpc::authority;
-use auth::interface::auth_grpc::*;
+use auth_interface::auth;
+use auth_interface::auth_grpc::*;
+
+#[derive(GrpcClient)]
+#[grpc(tgt_svc_name = "Auth")]
+#[grpc(ip = "0.0.0.0")]
+#[grpc(port = "30303")]
+pub struct AuthGrpcClient;
 
 fn main() {
     println!("###Running jsonrpc service...", );
     pretty_env_logger::init();
 
-    let addr = ([0,0,0,0], 3000).into();
+    let addr = ([127,0,0,1], 3000).into();
 
     let counter = Arc::new(AtomicUsize::new(0));
 
     let new_service = move || {
-        println!("conect clinet start...");
-        let client = authorityClient::new_plain("auth", 6666, Default::default()).unwrap();
+        println!("conect client start...");
+        //let client = AuthClient::new_plain("auth", 6666, Default::default()).unwrap();
+
+        let client = AuthGrpcClient::new();;
+
         let counter = counter.clone();
-        println!("conect clinet end");
+        println!("conect client end");
 
         service_fn_ok(move |req| {
             let count = counter.fetch_add(1, Ordering::AcqRel);
@@ -40,13 +51,13 @@ fn main() {
                     *response.body_mut() = Body::from("...welcome to cita demo...");
                 }
                 (&Method::POST, "/tx") => {
-                    let mut tx = auth::Transation::new();
+                    let mut tx = auth::AddUnverifyTxReq::new();
 
-                    tx.set_tx("new transation".to_string());
-                    let resp = client.auth(grpc::RequestOptions::new(), tx);
+                    tx.set_untx("new transation".to_string());
+                    let resp = client.add_unverify_tx(grpc::RequestOptions::new(), tx);
                     match resp.wait() {
-                        Ok(rsp) => *response.body_mut() = Body::from(format!("Request #{} : {:?}", count, rsp.1.get_state())),
-                        Err(e) => *response.body_mut() = Body::from(format!("Request #{} : {:?}", count, e)),
+                        Ok(rsp) => *response.body_mut() = Body::from(format!("Request #{} : {:?}", count, rsp.1.get_tx_res())),
+                        Err(e) => *response.body_mut() = Body::from(format!("ERROR : Request #{} : {:?}", count, e)),
                     }
 
                 }

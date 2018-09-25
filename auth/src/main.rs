@@ -12,36 +12,115 @@ use auth_interface::auth;
 use std::thread;
 use rand::Rng;
 
-struct my_auth {
-    inner_id : u32,
+
+// ==== sevice framework ====
+pub trait AuthServiceIntf {
+    fn init (&self);
 }
 
-impl Auth for my_auth {
-    fn send_transaction (&self, _o : ::grpc::RequestOptions, p : auth::SendTransactionReq) -> ::grpc::SingleResponse<auth::SendTransactionRes> {
-        let mut resp = auth::SendTransactionRes::new();
-        let crypto_type = p.get_untx().get_crypto();
-        let res = format!("{} --> Auth ID_{} respone ok", crypto_type, self.inner_id);
+pub struct AuthService {
+    inner_id : u32,
+    //service_hdl : AuthServiceIntf,
+}
 
-        resp.set_tx_hash(res);
+impl AuthService {
+
+    fn new_service<T: AuthServiceIntf>(svc: T) -> AuthService {
+        let auth_svc = AuthService {inner_id : rand::thread_rng().gen::<u32>()};
+
+        let mut server = grpc::ServerBuilder::new_plain();
+
+        server.http.set_addr("0.0.0.0:30303").expect("cannot setup auth service");
+        server.http.set_cpu_pool_threads(4);
+        server.add_service(AuthServer::new_service_def(AuthService{inner_id : rand::thread_rng().gen::<u32>()}));
+        let _server : Server = server.build().expect("server");
+
+        svc.init();
+        thread::park();
+        auth_svc
+    }
+
+    fn run (&self) {
+        loop {
+            thread::park();
+        }
+    }
+}
+
+impl Auth for AuthService {
+
+    fn add_unverify_tx(&self, o: ::grpc::RequestOptions, p: auth::AddUnverifyTxReq) -> ::grpc::SingleResponse<auth::AddUnverifyTxRes> {
+        println!("Enter add_unverify_tx!");
+        let mut resp = auth::AddUnverifyTxRes::new();
+
+        let res = format!("Auth ID_{} respone ok", self.inner_id);
+
+        resp.set_tx_res(res);
         grpc::SingleResponse::completed(resp)
     }
 
-    fn pack_transactions (&self, _o : ::grpc::RequestOptions, p : auth::PackTransactionsReq) -> ::grpc::SingleResponse<auth::PackTransactionsRes> {
+    fn verify_batch_txs(&self, o: ::grpc::RequestOptions, p: auth::VerifyBatchTxsReq) -> ::grpc::SingleResponse<auth::RpcStatus> {
+        let mut resp = auth::RpcStatus::new();
+        let res = format!("Auth ID_{} respone ok", self.inner_id);
 
+        resp.set_tx_res(res);
+        grpc::SingleResponse::completed(resp)
+    }
+
+    fn get_txs_hashes(&self, o: ::grpc::RequestOptions, p: auth::GetTxsHashesReq) -> ::grpc::SingleResponse<auth::GetTxsHashesRes>{
+        let mut resp = auth::GetTxsHashesRes::new();
+        let res = format!("Auth ID_{} respone ok", self.inner_id);
+
+        resp.set_tx_res(res);
+        grpc::SingleResponse::completed(resp)
+    }
+
+    fn store_txs(&self, o: ::grpc::RequestOptions, p: auth::StoreTxsReq) -> ::grpc::SingleResponse<auth::StoreTxsRes>{
+        let mut resp = auth::StoreTxsRes::new();
+        let res = format!("Auth ID_{} respone ok", self.inner_id);
+
+        resp.set_tx_res(res);
+        grpc::SingleResponse::completed(resp)
+    }
+
+    fn clean_txs_pool(&self, o: ::grpc::RequestOptions, p: auth::CleanTxsPoolReq) -> ::grpc::SingleResponse<auth::RpcStatus>{
+        let mut resp = auth::RpcStatus::new();
+        let res = format!("Auth ID_{} respone ok", self.inner_id);
+
+        resp.set_tx_res(res);
+        grpc::SingleResponse::completed(resp)
+    }
+
+}
+// === end service framework ===
+
+// === implement service ===
+
+struct AuthImpl {
+
+}
+
+impl AuthServiceIntf for AuthImpl {
+    fn init (&self) {
+        println!("Init Auth Service...");
+
+        println!("Init Auth Service end!");
     }
 }
 
 fn main() {
     println!("Running Auth Service...");
 
-    let mut server = grpc::ServerBuilder::new_plain();
+    // let mut server = grpc::ServerBuilder::new_plain();
+    //
+    // server.http.set_addr("0.0.0.0:30303").expect("cannot setup auth service");
+    // server.http.set_cpu_pool_threads(4);
+    // server.add_service(AuthServer::new_service_def(AuthService{inner_id : rand::thread_rng().gen::<u32>()}));
+    // let _server : Server = server.build().expect("server");
 
-    server.http.set_addr("0.0.0.0:30303").expect("cannot setup auth service");
-    server.http.set_cpu_pool_threads(4);
-    server.add_service(authorityServer::new_service_def(my_auth{inner_id : rand::thread_rng().gen::<u32>()}));
-    let _server : Server = server.build().expect("server");
+    let auth = AuthImpl {};
+    let auth_service = AuthService::new_service(auth);
 
-    loop {
-        thread::park();
-    }
+    auth_service.run();
+
 }

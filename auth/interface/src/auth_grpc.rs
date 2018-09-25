@@ -22,31 +22,58 @@
 // interface
 
 pub trait Auth {
-    fn send_transaction(&self, o: ::grpc::RequestOptions, p: super::auth::SendTransactionReq) -> ::grpc::SingleResponse<super::auth::SendTransactionRes>;
+    fn add_unverify_tx(&self, o: ::grpc::RequestOptions, p: super::auth::AddUnverifyTxReq) -> ::grpc::SingleResponse<super::auth::AddUnverifyTxRes>;
 
-    fn pack_transactions(&self, o: ::grpc::RequestOptions, p: super::auth::PackTransactionsReq) -> ::grpc::SingleResponse<super::auth::PackTransactionsRes>;
+    fn verify_batch_txs(&self, o: ::grpc::RequestOptions, p: super::auth::VerifyBatchTxsReq) -> ::grpc::SingleResponse<super::auth::RpcStatus>;
+
+    fn get_txs_hashes(&self, o: ::grpc::RequestOptions, p: super::auth::GetTxsHashesReq) -> ::grpc::SingleResponse<super::auth::GetTxsHashesRes>;
+
+    fn store_txs(&self, o: ::grpc::RequestOptions, p: super::auth::StoreTxsReq) -> ::grpc::SingleResponse<super::auth::StoreTxsRes>;
+
+    fn clean_txs_pool(&self, o: ::grpc::RequestOptions, p: super::auth::CleanTxsPoolReq) -> ::grpc::SingleResponse<super::auth::RpcStatus>;
 }
 
 // client
 
 pub struct AuthClient {
     grpc_client: ::grpc::Client,
-    method_SendTransaction: ::std::sync::Arc<::grpc::rt::MethodDescriptor<super::auth::SendTransactionReq, super::auth::SendTransactionRes>>,
-    method_PackTransactions: ::std::sync::Arc<::grpc::rt::MethodDescriptor<super::auth::PackTransactionsReq, super::auth::PackTransactionsRes>>,
+    method_AddUnverifyTx: ::std::sync::Arc<::grpc::rt::MethodDescriptor<super::auth::AddUnverifyTxReq, super::auth::AddUnverifyTxRes>>,
+    method_VerifyBatchTxs: ::std::sync::Arc<::grpc::rt::MethodDescriptor<super::auth::VerifyBatchTxsReq, super::auth::RpcStatus>>,
+    method_GetTxsHashes: ::std::sync::Arc<::grpc::rt::MethodDescriptor<super::auth::GetTxsHashesReq, super::auth::GetTxsHashesRes>>,
+    method_StoreTxs: ::std::sync::Arc<::grpc::rt::MethodDescriptor<super::auth::StoreTxsReq, super::auth::StoreTxsRes>>,
+    method_CleanTxsPool: ::std::sync::Arc<::grpc::rt::MethodDescriptor<super::auth::CleanTxsPoolReq, super::auth::RpcStatus>>,
 }
 
 impl AuthClient {
     pub fn with_client(grpc_client: ::grpc::Client) -> Self {
         AuthClient {
             grpc_client: grpc_client,
-            method_SendTransaction: ::std::sync::Arc::new(::grpc::rt::MethodDescriptor {
-                name: "/Auth/SendTransaction".to_string(),
+            method_AddUnverifyTx: ::std::sync::Arc::new(::grpc::rt::MethodDescriptor {
+                name: "/Auth/AddUnverifyTx".to_string(),
                 streaming: ::grpc::rt::GrpcStreaming::Unary,
                 req_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
                 resp_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
             }),
-            method_PackTransactions: ::std::sync::Arc::new(::grpc::rt::MethodDescriptor {
-                name: "/Auth/PackTransactions".to_string(),
+            method_VerifyBatchTxs: ::std::sync::Arc::new(::grpc::rt::MethodDescriptor {
+                name: "/Auth/VerifyBatchTxs".to_string(),
+                streaming: ::grpc::rt::GrpcStreaming::Unary,
+                req_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
+                resp_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
+            }),
+            method_GetTxsHashes: ::std::sync::Arc::new(::grpc::rt::MethodDescriptor {
+                name: "/Auth/GetTxsHashes".to_string(),
+                streaming: ::grpc::rt::GrpcStreaming::Unary,
+                req_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
+                resp_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
+            }),
+            method_StoreTxs: ::std::sync::Arc::new(::grpc::rt::MethodDescriptor {
+                name: "/Auth/StoreTxs".to_string(),
+                streaming: ::grpc::rt::GrpcStreaming::Unary,
+                req_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
+                resp_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
+            }),
+            method_CleanTxsPool: ::std::sync::Arc::new(::grpc::rt::MethodDescriptor {
+                name: "/Auth/CleanTxsPool".to_string(),
                 streaming: ::grpc::rt::GrpcStreaming::Unary,
                 req_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
                 resp_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
@@ -67,12 +94,24 @@ impl AuthClient {
 }
 
 impl Auth for AuthClient {
-    fn send_transaction(&self, o: ::grpc::RequestOptions, p: super::auth::SendTransactionReq) -> ::grpc::SingleResponse<super::auth::SendTransactionRes> {
-        self.grpc_client.call_unary(o, p, self.method_SendTransaction.clone())
+    fn add_unverify_tx(&self, o: ::grpc::RequestOptions, p: super::auth::AddUnverifyTxReq) -> ::grpc::SingleResponse<super::auth::AddUnverifyTxRes> {
+        self.grpc_client.call_unary(o, p, self.method_AddUnverifyTx.clone())
     }
 
-    fn pack_transactions(&self, o: ::grpc::RequestOptions, p: super::auth::PackTransactionsReq) -> ::grpc::SingleResponse<super::auth::PackTransactionsRes> {
-        self.grpc_client.call_unary(o, p, self.method_PackTransactions.clone())
+    fn verify_batch_txs(&self, o: ::grpc::RequestOptions, p: super::auth::VerifyBatchTxsReq) -> ::grpc::SingleResponse<super::auth::RpcStatus> {
+        self.grpc_client.call_unary(o, p, self.method_VerifyBatchTxs.clone())
+    }
+
+    fn get_txs_hashes(&self, o: ::grpc::RequestOptions, p: super::auth::GetTxsHashesReq) -> ::grpc::SingleResponse<super::auth::GetTxsHashesRes> {
+        self.grpc_client.call_unary(o, p, self.method_GetTxsHashes.clone())
+    }
+
+    fn store_txs(&self, o: ::grpc::RequestOptions, p: super::auth::StoreTxsReq) -> ::grpc::SingleResponse<super::auth::StoreTxsRes> {
+        self.grpc_client.call_unary(o, p, self.method_StoreTxs.clone())
+    }
+
+    fn clean_txs_pool(&self, o: ::grpc::RequestOptions, p: super::auth::CleanTxsPoolReq) -> ::grpc::SingleResponse<super::auth::RpcStatus> {
+        self.grpc_client.call_unary(o, p, self.method_CleanTxsPool.clone())
     }
 }
 
@@ -88,26 +127,62 @@ impl AuthServer {
             vec![
                 ::grpc::rt::ServerMethod::new(
                     ::std::sync::Arc::new(::grpc::rt::MethodDescriptor {
-                        name: "/Auth/SendTransaction".to_string(),
+                        name: "/Auth/AddUnverifyTx".to_string(),
                         streaming: ::grpc::rt::GrpcStreaming::Unary,
                         req_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
                         resp_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
                     }),
                     {
                         let handler_copy = handler_arc.clone();
-                        ::grpc::rt::MethodHandlerUnary::new(move |o, p| handler_copy.send_transaction(o, p))
+                        ::grpc::rt::MethodHandlerUnary::new(move |o, p| handler_copy.add_unverify_tx(o, p))
                     },
                 ),
                 ::grpc::rt::ServerMethod::new(
                     ::std::sync::Arc::new(::grpc::rt::MethodDescriptor {
-                        name: "/Auth/PackTransactions".to_string(),
+                        name: "/Auth/VerifyBatchTxs".to_string(),
                         streaming: ::grpc::rt::GrpcStreaming::Unary,
                         req_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
                         resp_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
                     }),
                     {
                         let handler_copy = handler_arc.clone();
-                        ::grpc::rt::MethodHandlerUnary::new(move |o, p| handler_copy.pack_transactions(o, p))
+                        ::grpc::rt::MethodHandlerUnary::new(move |o, p| handler_copy.verify_batch_txs(o, p))
+                    },
+                ),
+                ::grpc::rt::ServerMethod::new(
+                    ::std::sync::Arc::new(::grpc::rt::MethodDescriptor {
+                        name: "/Auth/GetTxsHashes".to_string(),
+                        streaming: ::grpc::rt::GrpcStreaming::Unary,
+                        req_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
+                        resp_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
+                    }),
+                    {
+                        let handler_copy = handler_arc.clone();
+                        ::grpc::rt::MethodHandlerUnary::new(move |o, p| handler_copy.get_txs_hashes(o, p))
+                    },
+                ),
+                ::grpc::rt::ServerMethod::new(
+                    ::std::sync::Arc::new(::grpc::rt::MethodDescriptor {
+                        name: "/Auth/StoreTxs".to_string(),
+                        streaming: ::grpc::rt::GrpcStreaming::Unary,
+                        req_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
+                        resp_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
+                    }),
+                    {
+                        let handler_copy = handler_arc.clone();
+                        ::grpc::rt::MethodHandlerUnary::new(move |o, p| handler_copy.store_txs(o, p))
+                    },
+                ),
+                ::grpc::rt::ServerMethod::new(
+                    ::std::sync::Arc::new(::grpc::rt::MethodDescriptor {
+                        name: "/Auth/CleanTxsPool".to_string(),
+                        streaming: ::grpc::rt::GrpcStreaming::Unary,
+                        req_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
+                        resp_marshaller: Box::new(::grpc::protobuf::MarshallerProtobuf),
+                    }),
+                    {
+                        let handler_copy = handler_arc.clone();
+                        ::grpc::rt::MethodHandlerUnary::new(move |o, p| handler_copy.clean_txs_pool(o, p))
                     },
                 ),
             ],
